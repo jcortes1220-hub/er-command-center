@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ER Command Center Smart Workflow v3.1</title>
+<link rel="icon" type="image/png" href="./favicon.png" />
+<link rel="shortcut icon" type="image/png" href="./favicon.png" />
+<link rel="apple-touch-icon" href="./favicon.png" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="ER Command" />
+<meta name="theme-color" content="#050b16" />
+<style>
+  :root{
+    --bg:#050b16; --panel:#0d1630; --panel-2:#0a1328; --border:#1d2b48;
+    --text:#e8eef8; --muted:#8ea0bf; --blue:#5ea6ff; --blue-soft:rgba(94,166,255,.14);
+    --red:#ff5f6d; --red-soft:rgba(255,95,109,.14); --yellow:#f1c550; --yellow-soft:rgba(241,197,80,.14);
+    --green:#3fd082; --green-soft:rgba(63,208,130,.14); --shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:linear-gradient(180deg,#040913 0%,#06101d 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
+  body{padding:14px 14px 28px}
+  .wrap{max-width:860px;margin:0 auto}
+  .hero,.panel{background:linear-gradient(180deg,#0d1630 0%,#0a1328 100%);border:1px solid var(--border);border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .hero{padding:18px;margin-bottom:14px}
+  .panel{padding:14px;margin-bottom:12px}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);font-weight:800}
+  h1{margin:8px 0 6px;font-size:clamp(28px,8vw,42px);line-height:.98}
+  .sub{color:var(--muted);font-size:13px;line-height:1.4}
+  .clockrow{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .time{font-size:34px;font-weight:900;color:var(--blue)}
+  .date{font-size:13px;color:var(--muted)}
+  .section-title{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700}
+  .grid2,.grid3{display:grid;gap:10px}
+  .grid2{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr 1fr 1fr}
+  .stat{padding:12px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid var(--border)}
+  .stat .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .stat .value{font-size:28px;font-weight:900;margin-top:4px}
+  .blue{color:var(--blue)} .red{color:var(--red)} .yellow{color:var(--yellow)} .green{color:var(--green)}
+  input,select,textarea{width:100%;border:1px solid var(--border);background:#050d1d;color:var(--text);border-radius:16px;padding:14px;font-size:16px;outline:none;margin:0 0 10px 0}
+  textarea{min-height:84px;resize:vertical}
+  .btn{width:100%;border:1px solid var(--border);background:#101b35;color:var(--text);padding:13px 14px;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer}
+  .btn.primary{background:var(--blue);border-color:transparent;color:#04101e}
+  .btn.redb{background:var(--red-soft);color:var(--red);border-color:rgba(255,95,109,.26)}
+  .btn.yellowb{background:var(--yellow-soft);color:var(--yellow);border-color:rgba(241,197,80,.26)}
+  .btn.greenb{background:var(--green-soft);color:var(--green);border-color:rgba(63,208,130,.26)}
+  .btn.blueb{background:var(--blue-soft);color:var(--blue);border-color:rgba(94,166,255,.26)}
+  .btn.active-tab{outline:2px solid var(--blue)}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tabs,.subtabs{display:grid;gap:8px}
+  .tabs{grid-template-columns:repeat(4,1fr)}
+  .subtabs{grid-template-columns:repeat(5,1fr)}
+  .chip{border:1px solid var(--border);background:#091224;color:var(--text);border-radius:14px;padding:10px 12px;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
+  .chip.active{outline:2px solid var(--blue);background:#0f1b35}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  .badge.red{background:var(--red-soft);color:var(--red)}
+  .badge.yellow{background:var(--yellow-soft);color:var(--yellow)}
+  .badge.green{background:var(--green-soft);color:var(--green)}
+  .badge.blue{background:var(--blue-soft);color:var(--blue)}
+  .task{border:1px solid var(--border);background:#071121;border-radius:16px;padding:12px;margin-bottom:10px}
+  .task.red{border-left:4px solid var(--red)}
+  .task.yellow{border-left:4px solid var(--yellow)}
+  .task.green{border-left:4px solid var(--green)}
+  .task.done{opacity:.62}
+  .task-top{display:flex;gap:10px;align-items:flex-start}
+  .check{width:24px;height:24px;border-radius:8px;border:2px solid #617090;display:flex;align-items:center;justify-content:center;flex:0 0 24px;cursor:pointer;margin-top:1px;font-weight:900}
+  .task.done .check{background:var(--green);border-color:var(--green);color:#04101e}
+  .task-main{flex:1;min-width:0}
+  .task-text{font-size:15px;font-weight:800;line-height:1.35}
+  .task.done .task-text{text-decoration:line-through}
+  .meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;font-size:12px;color:var(--muted)}
+  .note{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.03);font-size:13px;color:#d7e2f0}
+  .task-actions,.row-actions{display:flex;gap:8px;margin-top:10px}
+  .mini{padding:10px 12px;font-size:12px;border-radius:12px}
+  .mini-select{max-width:140px;margin:0;padding:10px 12px;font-size:12px;border-radius:12px;background:#0b1630}
+  .snapshot-grid,.sticky-grid{display:grid;gap:10px}
+  .snapshot-grid{grid-template-columns:1fr 1fr}
+  .sticky-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+  .snapshot-card,.sticky-card{border:1px solid var(--border);background:#071121;border-radius:16px;padding:12px}
+  .snapshot-line{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .snapshot-line:last-child{border-bottom:0}
+  .snapshot-line input[type="checkbox"]{width:18px;height:18px;margin:3px 0 0}
+  .snapshot-main{flex:1;min-width:0}
+  .sticky-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .sticky-tab{width:auto;padding:10px 12px}
+  .sticky-card.active{outline:2px solid var(--yellow)}
+  .carryover-box{border:1px dashed rgba(94,166,255,.32);background:rgba(94,166,255,.06);border-radius:16px;padding:12px;margin-bottom:10px}
+  .print-only{display:none}
+  @media print{
+    body{background:#fff;color:#000;padding:0}
+    .wrap{max-width:none}
+    .hero,.panel{box-shadow:none;border:1px solid #ccc;background:#fff;color:#000}
+    .btn,.tabs,.subtabs,.toast,input,select,textarea{display:none !important}
+    .print-only{display:block}
+  }
+  .empty{color:var(--muted);padding:8px 2px;font-size:14px}
+  .hidden{display:none}
+  .priority-preview{margin-top:2px;margin-bottom:10px}
+  .day-callout{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .contact-card{border:1px solid var(--border);background:#071121;border-radius:16px;padding:12px;margin-bottom:10px}
+  .contact-name{font-size:15px;font-weight:900}
+  .contact-meta{font-size:12px;color:var(--muted);margin-top:4px}
+  .contact-line{margin-top:8px;font-size:14px}
+  .contact-actions{display:flex;gap:8px;margin-top:10px}
+  .report{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;max-height:240px;overflow:auto;background:#06101d;border:1px solid var(--border);border-radius:16px;padding:12px}
+  .toast{position:fixed;left:14px;right:14px;bottom:14px;background:#0b1630;border:1px solid var(--border);border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:none;z-index:9999}
+  @media (max-width:680px){.grid2,.grid3,.quick-grid,.tabs,.subtabs,.snapshot-grid{grid-template-columns:1fr}.time{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">ER Command Center</div>
+    <h1>Manager Smart Workflow v3.1</h1>
+    <div class="sub">Daily focus, weekly by weekday, monthly due by month-end, editable contacts, reminders, and shift board.</div>
+    <div class="clockrow">
+      <div>
+        <div class="time" id="liveTime"></div>
+        <div class="date" id="liveDate"></div>
+      </div>
+      <div class="date">Board date: <span id="boardDateText"></span></div>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="stat panel"><div class="label">Open</div><div class="value blue" id="statOpen">0</div></div>
+    <div class="stat panel"><div class="label">Due Today</div><div class="value yellow" id="statDueToday">0</div></div>
+    <div class="stat panel"><div class="label">Month Ends In</div><div class="value green" id="statMonthLeft">0</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Navigation</div>
+    <div class="tabs">
+      <button class="btn active-tab" id="tabBtn-daily" onclick="setTab('daily')">Daily</button>
+      <button class="btn" id="tabBtn-weekly" onclick="setTab('weekly')">Weekly</button>
+      <button class="btn" id="tabBtn-monthly" onclick="setTab('monthly')">Monthly</button>
+      <button class="btn" id="tabBtn-contacts" onclick="setTab('contacts')">Contacts</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Today Snapshot</div>
+    <div class="day-callout">
+      <div><span class="badge blue" id="todayBadge"></span> <span class="badge yellow" id="monthBadge"></span></div>
+      <button class="btn blueb" style="max-width:260px" onclick="loadCheckedSnapshotTasks()">Load Checked Tasks</button>
+    </div>
+    <div class="row-actions">
+      <button class="btn" onclick="selectAllSnapshotTasks()">Select All Today</button>
+      <button class="btn" onclick="clearSnapshotSelections()">Unselect All Today</button>
+      <button class="btn" onclick="toggleSnapshotCategory('daily', true)">Select Daily</button>
+      <button class="btn" onclick="toggleSnapshotCategory('weekly', true)">Select Weekly</button>
+    </div>
+    <div class="snapshot-grid">
+      <div class="snapshot-card">
+        <div class="section-title">Daily Tasks</div>
+        <div id="snapshotDailyList"></div>
+      </div>
+      <div class="snapshot-card">
+        <div class="section-title">Weekly Tasks</div>
+        <div id="snapshotWeeklyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Add Task</div>
+    <input id="taskText" placeholder="Task title" />
+    <div class="grid2">
+      <select id="taskShift">
+        <option>Morning</option>
+        <option>Mid</option>
+        <option>Night</option>
+      </select>
+      <input id="taskOwner" placeholder="Owner (You / RN / Tech / Lab)" />
+    </div>
+    <select id="taskPersistence">
+      <option value="keep">Keep task after completion</option>
+      <option value="delete">Delete task when done</option>
+    </select>
+    <textarea id="taskNote" placeholder="Quick note or follow-up"></textarea>
+    <input id="taskReminder" type="datetime-local" />
+    <div class="quick-grid">
+      <button class="btn redb" onclick="setPriority('red')">Urgent</button>
+      <button class="btn yellowb" onclick="setPriority('yellow')">Monitor</button>
+      <button class="btn greenb" onclick="setPriority('green')">Routine</button>
+    </div>
+    <div class="priority-preview"><span class="muted">Selected priority:</span> <span id="priorityPreview" class="badge yellow">Monitor</span></div>
+    <div class="stack">
+      <button class="btn primary" onclick="addTask()">Add Task</button>
+      <button class="btn blueb" onclick="addTask(true)">Add Task + Reminder</button>
+    </div>
+  </div>
+
+  <div class="panel" id="tab-daily">
+    <div class="section-title">Daily Quick Buttons</div>
+    <div class="quick-grid" id="dailyButtons"></div>
+  </div>
+
+  <div class="panel hidden" id="tab-weekly">
+    <div class="section-title">Weekly by Day</div>
+    <div class="subtabs" id="weeklyDayButtons"></div>
+    <div style="margin-top:10px" id="weeklyList"></div>
+    <div class="stack">
+      <button class="btn primary" onclick="loadSelectedWeekly()">Load Selected Day</button>
+    </div>
+  </div>
+
+  <div class="panel hidden" id="tab-monthly">
+    <div class="section-title">Monthly List</div>
+    <div id="monthlyList"></div>
+    <div class="stack">
+      <button class="btn primary" onclick="loadMonthly()">Load Monthly Tasks</button>
+    </div>
+  </div>
+
+  <div class="panel hidden" id="tab-contacts">
+    <div class="section-title">Editable Contacts</div>
+    <div class="day-callout">
+      <div><span class="badge blue" id="contactCountBadge">0 contacts</span> <span class="badge green">Editable</span></div>
+      <button class="btn blueb" style="max-width:260px" onclick="restoreDefaultContacts()">Restore Default Contacts</button>
+    </div>
+    <input id="contactSearch" placeholder="Search contact or number" oninput="renderContacts()" />
+    <div id="contactEditor"></div>
+    <div class="grid2">
+      <input id="contactName" placeholder="Name / label" />
+      <input id="contactNumber" placeholder="Phone number" />
+    </div>
+    <div class="grid2">
+      <input id="contactGroup" placeholder="Group (Millenia / Direct / Admin)" />
+      <input id="contactExtra" placeholder="Extra note" />
+    </div>
+    <div class="row-actions">
+      <button class="btn primary" onclick="saveContact()">Save Contact</button>
+      <button class="btn" onclick="clearContactForm()">Clear</button>
+    </div>
+    <div id="contactsList" style="margin-top:12px"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Sticky Notes</div>
+    <div class="sticky-tabs" id="stickyTabs"></div>
+    <div class="row-actions">
+      <button class="btn primary" onclick="addStickyNote()">New Note</button>
+      <button class="btn" onclick="deleteActiveStickyNote()">Delete Active Note</button>
+    </div>
+    <input id="stickyTitle" placeholder="Sticky note title" />
+    <textarea id="stickyBody" placeholder="Shift notes, callbacks, staffing, lab follow-up, complaints, handoff notes..."></textarea>
+    <div class="sticky-grid" id="stickyPreviewGrid"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Workflow Actions</div>
+    <div class="stack">
+      <button class="btn primary" onclick="startNewDay()">Start New Day</button>
+      <button class="btn" onclick="emailReport()">Email Report</button>
+      <button class="btn" onclick="downloadReport()">Download Report</button>
+      <button class="btn" onclick="saveReportAsPdf()">Save Report as PDF</button>
+      <button class="btn" onclick="copyReport()">Copy Report</button>
+      <button class="btn" onclick="clearCompleted()">Clear Completed</button>
+      <button class="btn" onclick="clearBoard()">Clear Board</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Carryover Tasks</div>
+    <div id="carryoverList"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Monthly Progress</div>
+    <div class="day-callout">
+      <div><span class="badge yellow" id="monthlyOpenBadge">0 open</span> <span class="badge green" id="monthlyDoneBadge">0 done</span></div>
+      <button class="btn blueb" style="max-width:260px" onclick="loadMonthly()">Load Open Monthly Tasks</button>
+    </div>
+    <div id="monthlyProgressList"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Shift Board</div>
+    <div id="shiftBoard"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Reminders</div>
+    <input id="reminderTitle" placeholder="Reminder title" />
+    <div class="grid2">
+      <input id="reminderDate" type="date" />
+      <select id="reminderTime"></select>
+    </div>
+    <textarea id="reminderNote" placeholder="Reminder note"></textarea>
+    <div class="row-actions">
+      <button class="btn primary" onclick="addManualReminder()">Add Reminder</button>
+      <button class="btn" onclick="clearReminderForm()">Clear</button>
+      <button class="btn" onclick="downloadAllRemindersCalendar()">Download Agenda</button>
+    </div>
+    <div id="remindersList"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">End-of-Shift Report Preview</div>
+    <div class="report" id="reportPreview"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">History by Day</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = "er-command-center-smart-v31";
+const SHIFTS = ["Morning", "Mid", "Night"];
+const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+const DAILY_TASKS = [
+  { text: "Close Orbit Issues", shift: "Morning", priority: "red", owner: "You" },
+  { text: "Falls Audit by 0800", shift: "Morning", priority: "red", owner: "You" },
+  { text: "EDMV", shift: "Morning", priority: "red", owner: "You" },
+  { text: "Nate", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Emtalas", shift: "Morning", priority: "red", owner: "You" },
+  { text: "EMS Review", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "UKG Edits", shift: "Morning", priority: "red", owner: "You" },
+  { text: "Productivity", shift: "Morning", priority: "red", owner: "You" },
+  { text: "VSS", shift: "Morning", priority: "red", owner: "You" },
+  { text: "Patient Rounds", shift: "Morning", priority: "green", owner: "You" },
+  { text: "DM variances - Pyxis", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Press Ganey", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "EM Resource", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Pulsara", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "IV Start/Stop", shift: "Morning", priority: "green", owner: "You" },
+  { text: "Pain Reassess", shift: "Morning", priority: "green", owner: "You" },
+  { text: "Med Scan", shift: "Morning", priority: "green", owner: "You" },
+  { text: "Wound Compliance", shift: "Morning", priority: "green", owner: "You" }
+];
+
+const WEEKLY_TASKS = {
+  Monday: [
+    { text: "Weekly Staffing", shift: "Morning", priority: "red", owner: "You" },
+    { text: "Huddle Notes", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Pyxis Count", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Pepsi Order by 1000", shift: "Morning", priority: "red", owner: "You", reminderHour: 10, reminderMinute: 0 }
+  ],
+  Tuesday: [
+    { text: "Quality Board", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Metric Board", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "CBI's", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "New Employee", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Shopping List", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "PEX Slide", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "MOR Slide", shift: "Morning", priority: "yellow", owner: "You" }
+  ],
+  Wednesday: [
+    { text: "Review AMA", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Review Metric", shift: "Morning", priority: "yellow", owner: "You" }
+  ],
+  Thursday: [
+    { text: "Day of Sweep", shift: "Morning", priority: "red", owner: "You" },
+    { text: "TJC Audit EOC", shift: "Morning", priority: "red", owner: "You" },
+    { text: "NLR", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Patient Diet", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Safety", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Recognition", shift: "Morning", priority: "green", owner: "You" },
+    { text: "Send JOE 2pm", shift: "Morning", priority: "red", owner: "You", reminderHour: 14, reminderMinute: 0 }
+  ],
+  Friday: [
+    { text: "Moderate Sedation", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "BHI Audits", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "Pain", shift: "Morning", priority: "green", owner: "You" },
+    { text: "Stroke", shift: "Morning", priority: "red", owner: "You" },
+    { text: "Work Orders", shift: "Morning", priority: "yellow", owner: "You" },
+    { text: "EMTALA", shift: "Morning", priority: "red", owner: "You" }
+  ]
+};
+
+const MONTHLY_TASKS = [
+  { text: "UBC Minutes", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Sullivan", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Replace Logs", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Stoplight", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Open Edits 4th-7th", shift: "Morning", priority: "red", owner: "You" },
+  { text: "CNC/Staffing Meeting", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Schedules", shift: "Morning", priority: "red", owner: "You" },
+  { text: "HWS Needs", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Employee Rounds", shift: "Morning", priority: "green", owner: "You" },
+  { text: "Triage Compliance", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "Handwatch", shift: "Morning", priority: "yellow", owner: "You" },
+  { text: "EMTALA print for open edits", shift: "Morning", priority: "red", owner: "You" },
+  { text: "Healthstream", shift: "Morning", priority: "yellow", owner: "You" }
+];
+
+const DEFAULT_CONTACTS = [
+  { id: "c1", name: "Lab", number: "39812", group: "Millenia", extra: "" },
+  { id: "c2", name: "Reg", number: "39825", group: "Millenia", extra: "" },
+  { id: "c3", name: "Sec", number: "39801", group: "Millenia", extra: "" },
+  { id: "c4", name: "CT/Rad", number: "39811", group: "Millenia", extra: "" },
+  { id: "c5", name: "Mgr", number: "39805", group: "Millenia", extra: "" },
+  { id: "c6", name: "Lounge", number: "39733", group: "Millenia", extra: "" },
+  { id: "c7", name: "Triage", number: "39802", group: "Millenia", extra: "" },
+  { id: "c8", name: "ER", number: "407-518-3801", group: "ER/Internal", extra: "" },
+  { id: "c9", name: "BH", number: "407-518-5835", group: "ER/Internal", extra: "" },
+  { id: "c10", name: "Blood", number: "407-518-3715", group: "ER/Internal", extra: "" },
+  { id: "c11", name: "Transport", number: "755-7844", group: "ER/Internal", extra: "" },
+  { id: "c12", name: "Transfer", number: "904-390-6000", group: "ER/Internal", extra: "" },
+  { id: "c13", name: "ORMC ED", number: "321-841-5231", group: "ER/Internal", extra: "" },
+  { id: "c14", name: "Envision", number: "407-799-3090", group: "ER/Internal", extra: "" },
+  { id: "c15", name: "Hunters", number: "407-903-7033", group: "External", extra: "" },
+  { id: "c16", name: "Osceola E", number: "766-5400", group: "External", extra: "" },
+  { id: "c17", name: "West Orange", number: "689-407-3828", group: "External", extra: "" },
+  { id: "c18", name: "Airport", number: "689-278-1234", group: "External", extra: "" },
+  { id: "c19", name: "ORL Rec", number: "407-613-5555", group: "External", extra: "" },
+  { id: "c20", name: "Report", number: "689-688-1074", group: "External", extra: "" },
+  { id: "c21", name: "PT Home", number: "877-550-9337", group: "External", extra: "opt 5" },
+  { id: "c22", name: "Hospital", number: "407-846-2266", group: "External", extra: "" },
+  { id: "c23", name: "Fax", number: "407-518-2794", group: "Admin", extra: "" },
+  { id: "c24", name: "Millenia", number: "407-393-9810", group: "Admin", extra: "" },
+  { id: "c32", name: "Main", number: "407-518-3801", group: "Admin", extra: "" },
+  { id: "c25", name: "KOPA", number: "407-352-6968", group: "Admin", extra: "" },
+  { id: "c26", name: "Plant Ops 24/7", number: "407-948-2716", group: "Plant Ops", extra: "" },
+  { id: "c27", name: "Plant Ops Wknd", number: "407-908-4412", group: "Plant Ops", extra: "" },
+  { id: "c28", name: "Giselle", number: "407-202-1776", group: "Direct", extra: "" },
+  { id: "c29", name: "Vivian", number: "210-426-8535", group: "Direct", extra: "" },
+  { id: "c30", name: "OPD", number: "321-235-5300", group: "Other", extra: "" },
+  { id: "c31", name: "Reg Mgr", number: "833-454-2025", group: "Other", extra: "" },
+  { id: "c33", name: "Joe Stern", number: "407-982-0803", group: "Direct", extra: "" },
+  { id: "c34", name: "Stacy Caballero", number: "786-302-5799", group: "Direct", extra: "" },
+  { id: "c35", name: "Marixa", number: "407-340-3334", group: "Direct", extra: "" },
+  { id: "c36", name: "Deuna", number: "317-679-7725", group: "Direct", extra: "" },
+  { id: "c37", name: "David West", number: "407-376-0132", group: "Direct", extra: "" },
+  { id: "c38", name: "Jennifer Irrizary", number: "407-928-1699", group: "Direct", extra: "" }
+];
+
+function uid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function fmtDate(dateStr) {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+}
+function fmtShort(dt) {
+  return new Date(dt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+function esc(s = "") {
+  return String(s).replace(/[&<>"]/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+}
+function labelFor(priority) { return priority === "red" ? "Urgent" : priority === "yellow" ? "Monitor" : "Routine"; }
+function colorClass(priority) { return priority === "red" ? "red" : priority === "yellow" ? "yellow" : "green"; }
+function getCurrentWeekday() {
+  const day = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  return WEEKDAYS.includes(day) ? day : "Monday";
+}
+function daysLeftInMonth() {
+  const now = new Date();
+  const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return last.getDate() - now.getDate();
+}
+function normalizePhone(num = "") { return String(num).replace(/[^\d+]/g, ""); }
+function buildReminderDate(hour, minute) {
+  const d = new Date();
+  d.setHours(hour, minute, 0, 0);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function currentMonthKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function defaultState() {
+  const firstStickyNoteId = uid();
+  return {
+    currentBoardDate: todayKey(),
+    currentTab: "daily",
+    selectedWeekday: getCurrentWeekday(),
+    selectedPriority: "yellow",
+    tasks: [],
+    reminders: [],
+    contacts: JSON.parse(JSON.stringify(DEFAULT_CONTACTS)),
+    editingContactId: null,
+    stickyNotes: [{ id: firstStickyNoteId, title: "Shift Note 1", body: "" }],
+    activeStickyNoteId: firstStickyNoteId,
+    snapshotSelections: {},
+    monthlyCycle: currentMonthKey(),
+    monthlyCompleted: [],
+    history: []
+  };
+}
+
+function loadState() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    const merged = { ...defaultState(), ...parsed };
+    if (!Array.isArray(merged.contacts) || !merged.contacts.length) merged.contacts = JSON.parse(JSON.stringify(DEFAULT_CONTACTS));
+    const contactUpdates = {
+      BH: "407-518-5835",
+      Blood: "407-518-3715",
+      Hunters: "407-903-7033",
+      Millenia: "407-393-9810"
+    };
+    merged.contacts = merged.contacts.map((contact) => {
+      if (contactUpdates[contact.name]) {
+        return { ...contact, number: contactUpdates[contact.name] };
+      }
+      return contact;
+    });
+    [
+      { id: "c32", name: "Main", number: "407-518-3801", group: "Admin", extra: "" },
+      { id: "c33", name: "Joe Stern", number: "407-982-0803", group: "Direct", extra: "" },
+      { id: "c34", name: "Stacy Caballero", number: "786-302-5799", group: "Direct", extra: "" },
+      { id: "c35", name: "Marixa", number: "407-340-3334", group: "Direct", extra: "" },
+      { id: "c36", name: "Deuna", number: "317-679-7725", group: "Direct", extra: "" },
+      { id: "c37", name: "David West", number: "407-376-0132", group: "Direct", extra: "" },
+      { id: "c38", name: "Jennifer Irrizary", number: "407-928-1699", group: "Direct", extra: "" }
+    ].forEach((contactToAdd) => {
+      if (!merged.contacts.some((contact) => contact.name === contactToAdd.name)) {
+        merged.contacts.push(contactToAdd);
+      }
+    });
+    if (!Array.isArray(merged.stickyNotes) || !merged.stickyNotes.length) {
+      merged.stickyNotes = [{ id: uid(), title: "Shift Note 1", body: parsed.quickNotes || "" }];
+    }
+    if (!merged.activeStickyNoteId || !merged.stickyNotes.some((note) => note.id === merged.activeStickyNoteId)) {
+      merged.activeStickyNoteId = merged.stickyNotes[0].id;
+    }
+    if (!merged.snapshotSelections || typeof merged.snapshotSelections !== "object") merged.snapshotSelections = {};
+    if (!Array.isArray(merged.monthlyCompleted)) merged.monthlyCompleted = [];
+    if (!merged.monthlyCycle) merged.monthlyCycle = currentMonthKey();
+    return merged;
+  } catch (error) {
+    return defaultState();
+  }
+}
+
+let state = loadState();
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(window.__toast);
+  window.__toast = setTimeout(() => { el.style.display = "none"; }, 2200);
+}
+
+function updateClock() {
+  document.getElementById("liveTime").textContent = new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  document.getElementById("liveDate").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  document.getElementById("boardDateText").textContent = fmtDate(state.currentBoardDate);
+}
+
+function taskExists(text) {
+  return state.tasks.some((task) => task.text.toLowerCase() === text.toLowerCase() && task.boardDate === state.currentBoardDate && !task.done);
+}
+
+function reminderExists(title, dt) {
+  return state.reminders.some((reminder) => reminder.title === title && reminder.dateTime === dt && !reminder.done);
+}
+
+function getActiveStickyNote() {
+  return state.stickyNotes.find((note) => note.id === state.activeStickyNoteId) || state.stickyNotes[0];
+}
+
+function stickyNotesText() {
+  return state.stickyNotes.map((note) => `${note.title}: ${note.body || "No details"}`).join("\n");
+}
+
+function ensureMonthlyCycle() {
+  const monthKey = currentMonthKey();
+  if (state.monthlyCycle !== monthKey) {
+    state.monthlyCycle = monthKey;
+    state.monthlyCompleted = [];
+  }
+}
+
+function isMonthlyCompleted(text) {
+  ensureMonthlyCycle();
+  return state.monthlyCompleted.includes(text);
+}
+
+function setMonthlyCompleted(text, done) {
+  ensureMonthlyCycle();
+  if (done) {
+    if (!state.monthlyCompleted.includes(text)) state.monthlyCompleted.push(text);
+  } else {
+    state.monthlyCompleted = state.monthlyCompleted.filter((entry) => entry !== text);
+  }
+}
+
+function snapshotSelectionKey(category, text) {
+  return `${category}:${text}`;
+}
+
+function isSnapshotSelected(category, text) {
+  return !!state.snapshotSelections[snapshotSelectionKey(category, text)];
+}
+
+function setSnapshotSelection(category, text, checked) {
+  state.snapshotSelections[snapshotSelectionKey(category, text)] = checked;
+  save();
+}
+
+function getSelectedShift() {
+  return document.getElementById("taskShift")?.value || "Morning";
+}
+
+function withSelectedShift(task) {
+  return { ...task, shift: getSelectedShift() };
+}
+
+function maybeAutoCarryover() {
+  ensureMonthlyCycle();
+  const today = todayKey();
+  if (state.currentBoardDate === today) return;
+
+  const snapshot = {
+    id: uid(),
+    date: state.currentBoardDate,
+    archivedAt: new Date().toISOString(),
+    tasks: JSON.parse(JSON.stringify(state.tasks)),
+    reminders: JSON.parse(JSON.stringify(state.reminders)),
+    stickyNotes: JSON.parse(JSON.stringify(state.stickyNotes))
+  };
+  const carryTasks = state.tasks
+    .filter((task) => !task.done)
+    .map((task) => ({ ...task, id: uid(), boardDate: today, carriedOver: true, createdAt: new Date().toISOString(), completedAt: null }));
+  const carryReminders = state.reminders.filter((reminder) => !reminder.done).map((reminder) => ({ ...reminder }));
+
+  state.history.unshift(snapshot);
+  state.history = state.history.slice(0, 30);
+  state.currentBoardDate = today;
+  state.tasks = carryTasks;
+  state.reminders = carryReminders;
+  save();
+}
+
+function genReport() {
+  const open = state.tasks.filter((task) => !task.done);
+  const done = state.tasks.filter((task) => task.done);
+  const out = [];
+
+  out.push("ER COMMAND CENTER REPORT");
+  out.push("Board date: " + fmtDate(state.currentBoardDate));
+  out.push("Generated: " + new Date().toLocaleString());
+  out.push("");
+  out.push("Open tasks: " + open.length);
+  out.push("Completed tasks: " + done.length);
+  out.push("Urgent open: " + open.filter((task) => task.priority === "red").length);
+  out.push("Monitor open: " + open.filter((task) => task.priority === "yellow").length);
+  out.push("Routine open: " + open.filter((task) => task.priority === "green").length);
+  out.push("");
+
+  SHIFTS.forEach((shift) => {
+    out.push(shift.toUpperCase());
+    const tasks = state.tasks.filter((task) => task.shift === shift);
+    if (!tasks.length) out.push("- none");
+    tasks.forEach((task) => {
+      out.push(`- [${task.done ? "x" : " "}] ${task.text} | ${labelFor(task.priority)} | ${task.owner || "Unassigned"}${task.carriedOver ? " | carried over" : ""}`);
+      if (task.note) out.push("  note: " + task.note);
+    });
+    out.push("");
+  });
+
+  out.push("REMINDERS");
+  if (!state.reminders.length) out.push("- none");
+  state.reminders.forEach((reminder) => {
+    out.push(`- [${reminder.done ? "x" : " "}] ${reminder.title} | ${fmtShort(reminder.dateTime)}`);
+    if (reminder.note) out.push("  note: " + reminder.note);
+  });
+  out.push("");
+  out.push("STICKY NOTES");
+  out.push(stickyNotesText() || "None");
+
+  return out.join("\n");
+}
+
+function renderReport() {
+  document.getElementById("reportPreview").textContent = genReport();
+}
+
+function emailReport() {
+  const subject = encodeURIComponent("ER Command Center Report - " + fmtDate(state.currentBoardDate));
+  const body = encodeURIComponent(genReport());
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+function downloadReport() {
+  const blob = new Blob([genReport()], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `er-command-center-${state.currentBoardDate}.txt`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function copyReport() {
+  navigator.clipboard.writeText(genReport()).then(() => toast("Report copied."));
+}
+
+function clearCompleted() {
+  state.tasks = state.tasks.filter((task) => !task.done);
+  state.reminders = state.reminders.filter((reminder) => !reminder.done);
+  save();
+  maybeAutoCarryover();
+  render();
+  toast("Completed cleared.");
+}
+
+function clearBoard() {
+  if (!confirm("Clear current board?")) return;
+  state.tasks = [];
+  state.reminders = [];
+  save();
+  render();
+}
+
+function startNewDay() {
+  if (!confirm("Archive today and carry incomplete items to a new day?")) return;
+
+  const snapshot = {
+    id: uid(),
+    date: state.currentBoardDate,
+    archivedAt: new Date().toISOString(),
+    tasks: JSON.parse(JSON.stringify(state.tasks)),
+    reminders: JSON.parse(JSON.stringify(state.reminders)),
+    stickyNotes: JSON.parse(JSON.stringify(state.stickyNotes))
+  };
+  const carryTasks = state.tasks
+    .filter((task) => !task.done)
+    .map((task) => ({ ...task, id: uid(), boardDate: todayKey(), carriedOver: true, createdAt: new Date().toISOString(), completedAt: null }));
+  const carryReminders = state.reminders.filter((reminder) => !reminder.done).map((reminder) => ({ ...reminder }));
+
+  state.history.unshift(snapshot);
+  state.history = state.history.slice(0, 30);
+  state.currentBoardDate = todayKey();
+  state.tasks = carryTasks;
+  state.reminders = carryReminders;
+  save();
+  render();
+  toast("New day started.");
+}
+
+function loadHistory(id) {
+  const item = state.history.find((entry) => entry.id === id);
+  if (!item) return;
+  if (!confirm("Load this archived day into the current board?")) return;
+  state.currentBoardDate = item.date;
+  state.tasks = JSON.parse(JSON.stringify(item.tasks));
+  state.reminders = JSON.parse(JSON.stringify(item.reminders));
+  state.stickyNotes = JSON.parse(JSON.stringify(item.stickyNotes || [{ id: uid(), title: "Shift Note 1", body: item.quickNotes || "" }]));
+  state.activeStickyNoteId = state.stickyNotes[0]?.id || uid();
+  save();
+  render();
+}
+
+function exportHistory(id) {
+  const item = state.history.find((entry) => entry.id === id);
+  if (!item) return;
+  const lines = [
+    "ER COMMAND CENTER REPORT",
+    "Board date: " + fmtDate(item.date),
+    "",
+    ...item.tasks.map((task) => `- [${task.done ? "x" : " "}] ${task.text} | ${labelFor(task.priority)} | ${task.owner || "Unassigned"}`),
+    "",
+    "STICKY NOTES",
+    (item.stickyNotes || []).map((note) => `${note.title}: ${note.body || "No details"}`).join("\n") || item.quickNotes || "None"
+  ];
+  const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `er-history-${item.date}.txt`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function renderHistory() {
+  const root = document.getElementById("historyList");
+  if (!state.history.length) {
+    root.innerHTML = '<div class="empty">No archived days yet.</div>';
+    return;
+  }
+  root.innerHTML = state.history.slice(0, 10).map((entry) => {
+    const open = entry.tasks.filter((task) => !task.done).length;
+    const done = entry.tasks.filter((task) => task.done).length;
+    return `<div class="task"><div class="task-main"><div class="task-text">${fmtDate(entry.date)}</div><div class="meta"><span>${open} open</span><span>${done} completed</span><span>${(entry.reminders || []).length} reminders</span></div><div class="task-actions"><button class="btn mini" onclick="loadHistory('${entry.id}')">Load day</button><button class="btn mini" onclick="exportHistory('${entry.id}')">Download report</button></div></div></div>`;
+  }).join("");
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function setTab(tab) {
+  state.currentTab = tab;
+  save();
+  ["daily", "weekly", "monthly", "contacts"].forEach((id) => {
+    document.getElementById("tab-" + id).classList.toggle("hidden", id !== tab);
+    document.getElementById("tabBtn-" + id).classList.toggle("active-tab", id === tab);
+  });
+  scrollToSection("tab-" + tab);
+}
+
+function setPriority(priority) {
+  state.selectedPriority = priority;
+  save();
+  renderPriorityPreview();
+}
+
+function renderPriorityPreview() {
+  const badge = document.getElementById("priorityPreview");
+  badge.className = "badge " + colorClass(state.selectedPriority);
+  badge.textContent = labelFor(state.selectedPriority);
+}
+
+function addTask(withReminder = false, preset = null) {
+  const text = preset?.text || document.getElementById("taskText").value.trim();
+  if (!text) {
+    toast("Add a task title first.");
+    return;
+  }
+
+  const task = {
+    id: uid(),
+    text,
+    shift: preset?.shift || getSelectedShift(),
+    priority: preset?.priority || state.selectedPriority,
+    owner: preset?.owner || document.getElementById("taskOwner").value.trim(),
+    note: document.getElementById("taskNote").value.trim(),
+    autoDeleteWhenDone: preset?.autoDeleteWhenDone ?? (document.getElementById("taskPersistence")?.value === "delete"),
+    sourceCategory: preset?.sourceCategory || "manual",
+    monthlyTask: !!preset?.monthlyTask,
+    createdAt: new Date().toISOString(),
+    boardDate: state.currentBoardDate,
+    done: false
+  };
+  state.tasks.unshift(task);
+
+  let reminderDate = document.getElementById("taskReminder").value;
+  if (preset?.reminderHour !== undefined) reminderDate = buildReminderDate(preset.reminderHour, preset.reminderMinute || 0);
+  if ((withReminder || preset?.reminderHour !== undefined) && reminderDate && !reminderExists(task.text, reminderDate)) {
+    state.reminders.unshift({
+      id: uid(),
+      title: task.text,
+      dateTime: reminderDate,
+      note: task.note || `${task.shift} reminder`,
+      done: false,
+      notified: false
+    });
+  }
+
+  document.getElementById("taskText").value = "";
+  document.getElementById("taskOwner").value = "";
+  document.getElementById("taskNote").value = "";
+  document.getElementById("taskReminder").value = "";
+  save();
+  render();
+}
+
+function loadDailySet() {
+  let count = 0;
+  DAILY_TASKS.forEach((task) => {
+    if (!taskExists(task.text)) {
+      addTask(false, { ...withSelectedShift(task), sourceCategory: "daily" });
+      count++;
+    }
+  });
+  const weekday = getCurrentWeekday();
+  if (WEEKDAYS.includes(weekday)) {
+    (WEEKLY_TASKS[weekday] || []).forEach((task) => {
+      if (!taskExists(task.text)) {
+        addTask(false, { ...withSelectedShift(task), sourceCategory: "weekly" });
+        count++;
+      }
+    });
+  }
+  render();
+  toast(count ? `${count} daily and weekly tasks loaded.` : "Daily and weekly tasks are already on the board.");
+}
+
+function loadSelectedWeekly() {
+  const tasks = WEEKLY_TASKS[state.selectedWeekday] || [];
+  let count = 0;
+  tasks.forEach((task) => {
+    if (!taskExists(task.text)) {
+      addTask(false, { ...withSelectedShift(task), sourceCategory: "weekly" });
+      count++;
+    }
+  });
+  render();
+  toast(count ? `${state.selectedWeekday} tasks loaded.` : `${state.selectedWeekday} already loaded.`);
+}
+
+function loadMonthly() {
+  ensureMonthlyCycle();
+  let count = 0;
+  MONTHLY_TASKS.forEach((task) => {
+    if (!isMonthlyCompleted(task.text) && !taskExists(task.text)) {
+      addTask(false, { ...withSelectedShift(task), sourceCategory: "monthly", monthlyTask: true });
+      count++;
+    }
+  });
+  render();
+  toast(count ? `${count} monthly tasks loaded.` : "Monthly tasks are already loaded or done this month.");
+}
+
+function toggleTask(id) {
+  const task = state.tasks.find((entry) => entry.id === id);
+  if (!task) return;
+  task.done = !task.done;
+  if (task.monthlyTask) setMonthlyCompleted(task.text, task.done);
+  if (task.done && task.autoDeleteWhenDone) {
+    state.tasks = state.tasks.filter((entry) => entry.id !== id);
+    save();
+    render();
+    toast(`${task.text} completed and removed.`);
+    return;
+  }
+  save();
+  render();
+}
+
+function moveTaskToShift(id, shift) {
+  const task = state.tasks.find((entry) => entry.id === id);
+  if (!task || !SHIFTS.includes(shift)) return;
+  task.shift = shift;
+  save();
+  render();
+  toast(`${task.text} moved to ${shift}.`);
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter((task) => task.id !== id);
+  save();
+  render();
+}
+
+function toggleReminder(id) {
+  const reminder = state.reminders.find((entry) => entry.id === id);
+  if (!reminder) return;
+  reminder.done = !reminder.done;
+  save();
+  render();
+}
+
+function clearReminderForm() {
+  document.getElementById("reminderTitle").value = "";
+  document.getElementById("reminderDate").value = "";
+  document.getElementById("reminderTime").value = "08:00";
+  document.getElementById("reminderNote").value = "";
+}
+
+function combineReminderDateTime() {
+  const date = document.getElementById("reminderDate").value;
+  const time = document.getElementById("reminderTime").value;
+  if (!date || !time) return "";
+  return `${date}T${time}`;
+}
+
+function addManualReminder() {
+  const title = document.getElementById("reminderTitle").value.trim();
+  const dateTime = combineReminderDateTime();
+  const note = document.getElementById("reminderNote").value.trim();
+  if (!title || !dateTime) {
+    toast("Add a reminder title, date, and time.");
+    return;
+  }
+  if (reminderExists(title, dateTime)) {
+    toast("That reminder already exists.");
+    return;
+  }
+  state.reminders.unshift({
+    id: uid(),
+    title,
+    dateTime,
+    note,
+    done: false,
+    notified: false
+  });
+  save();
+  clearReminderForm();
+  renderReminders();
+  renderReport();
+  toast("Reminder added.");
+}
+
+function deleteReminder(id) {
+  state.reminders = state.reminders.filter((reminder) => reminder.id !== id);
+  save();
+  renderReminders();
+  renderReport();
+  toast("Reminder deleted.");
+}
+
+function downloadCalendarFile(filename, content) {
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function formatICSDate(dateTime) {
+  return new Date(dateTime).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function escapeICS(text = "") {
+  return String(text).replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+}
+
+function buildCalendarContent(reminders) {
+  const body = reminders.map((reminder) => [
+    "BEGIN:VEVENT",
+    `UID:${reminder.id}@er-command-center`,
+    `DTSTAMP:${formatICSDate(new Date().toISOString())}`,
+    `DTSTART:${formatICSDate(reminder.dateTime)}`,
+    `DTEND:${formatICSDate(new Date(new Date(reminder.dateTime).getTime() + 30 * 60000).toISOString())}`,
+    `SUMMARY:${escapeICS(reminder.title)}`,
+    `DESCRIPTION:${escapeICS(reminder.note || "ER Command Center reminder")}`,
+    "END:VEVENT"
+  ].join("\n")).join("\n");
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//ER Command Center//EN", body, "END:VCALENDAR"].join("\n");
+}
+
+function downloadReminderCalendar(id) {
+  const reminder = state.reminders.find((entry) => entry.id === id);
+  if (!reminder) return;
+  downloadCalendarFile(`${reminder.title.replace(/[^\w-]+/g, "-").toLowerCase() || "reminder"}.ics`, buildCalendarContent([reminder]));
+}
+
+function downloadAllRemindersCalendar() {
+  if (!state.reminders.length) {
+    toast("No reminders to export.");
+    return;
+  }
+  downloadCalendarFile(`er-reminders-${state.currentBoardDate}.ics`, buildCalendarContent(state.reminders));
+}
+
+function addStickyNote() {
+  const note = { id: uid(), title: `Shift Note ${state.stickyNotes.length + 1}`, body: "" };
+  state.stickyNotes.push(note);
+  state.activeStickyNoteId = note.id;
+  save();
+  renderStickyNotes();
+}
+
+function setActiveStickyNote(id) {
+  state.activeStickyNoteId = id;
+  save();
+  renderStickyNotes();
+}
+
+function deleteActiveStickyNote() {
+  if (state.stickyNotes.length === 1) {
+    state.stickyNotes[0].title = "Shift Note 1";
+    state.stickyNotes[0].body = "";
+    state.activeStickyNoteId = state.stickyNotes[0].id;
+  } else {
+    state.stickyNotes = state.stickyNotes.filter((note) => note.id !== state.activeStickyNoteId);
+    state.activeStickyNoteId = state.stickyNotes[0].id;
+  }
+  save();
+  renderStickyNotes();
+  renderReport();
+}
+
+function renderStickyNotes() {
+  const active = getActiveStickyNote();
+  if (!active) return;
+  document.getElementById("stickyTabs").innerHTML = state.stickyNotes.map((note, index) => `<button class="btn sticky-tab ${note.id === active.id ? "active-tab" : ""}" onclick="setActiveStickyNote('${note.id}')">${esc(note.title || `Note ${index + 1}`)}</button>`).join("");
+  document.getElementById("stickyTitle").value = active.title || "";
+  document.getElementById("stickyBody").value = active.body || "";
+  document.getElementById("stickyPreviewGrid").innerHTML = state.stickyNotes.map((note) => `
+    <div class="sticky-card ${note.id === active.id ? "active" : ""}">
+      <div class="task-text">${esc(note.title || "Untitled")}</div>
+      <div class="note">${esc(note.body || "No details yet.")}</div>
+    </div>
+  `).join("");
+}
+
+function syncActiveStickyNote() {
+  const active = getActiveStickyNote();
+  if (!active) return;
+  active.title = document.getElementById("stickyTitle").value.trim() || "Untitled Note";
+  active.body = document.getElementById("stickyBody").value;
+  save();
+  renderReport();
+}
+
+function markMonthlyTaskDone(text) {
+  setMonthlyCompleted(text, true);
+  save();
+  render();
+  toast(`${text} marked done for this month.`);
+}
+
+function renderCarryover() {
+  const root = document.getElementById("carryoverList");
+  const openCarryover = state.tasks.filter((task) => task.carriedOver && !task.done);
+  const doneCarryover = state.tasks.filter((task) => task.carriedOver && task.done);
+  if (!openCarryover.length && !doneCarryover.length) {
+    root.innerHTML = '<div class="empty">No carryover tasks right now.</div>';
+    return;
+  }
+  root.innerHTML = `
+    ${openCarryover.length ? `<div class="carryover-box"><div class="task-text">Still unfinished</div>${openCarryover.map((task) => `<div class="meta"><span>${esc(task.text)}</span><span>${esc(task.shift)}</span></div>`).join("")}</div>` : ""}
+    <div class="carryover-box"><div class="task-text">${doneCarryover.length ? "You completed unfinished tasks." : "No finished carryover tasks yet."}</div><div class="meta"><span>${doneCarryover.length} completed carryover</span></div></div>
+  `;
+}
+
+function saveReportAsPdf() {
+  const reportWindow = window.open("", "_blank", "width=900,height=700");
+  if (!reportWindow) {
+    toast("Allow popups to save as PDF.");
+    return;
+  }
+  reportWindow.document.write(`<!DOCTYPE html><html><head><title>ER Report</title><style>body{font-family:Arial,sans-serif;padding:24px;white-space:pre-wrap}pre{white-space:pre-wrap;font-family:Consolas,monospace}</style></head><body><h1>ER Command Center Report</h1><pre>${esc(genReport())}</pre></body></html>`);
+  reportWindow.document.close();
+  reportWindow.focus();
+  reportWindow.print();
+}
+
+function getSnapshotTasks(category) {
+  if (category === "daily") return DAILY_TASKS;
+  if (category === "weekly") return WEEKLY_TASKS[getCurrentWeekday()] || [];
+  return [];
+}
+
+function getSnapshotStatus(category) {
+  return getSnapshotTasks(category).map((item) => {
+    const matchingTasks = state.tasks.filter((task) => task.boardDate === state.currentBoardDate && task.text === item.text);
+    const activeTask = matchingTasks.find((task) => !task.done);
+    const doneTask = matchingTasks.find((task) => task.done);
+    return {
+      ...item,
+      category,
+      loaded: matchingTasks.length > 0,
+      done: !activeTask && !!doneTask,
+      checked: isSnapshotSelected(category, item.text)
+    };
+  });
+}
+
+function renderSnapshotList(targetId, category) {
+  const items = getSnapshotStatus(category);
+  const root = document.getElementById(targetId);
+  root.innerHTML = items.map((item) => `
+    <label class="snapshot-line">
+      <input type="checkbox" ${item.checked ? "checked" : ""} onchange='setSnapshotSelection(${JSON.stringify(category)}, ${JSON.stringify(item.text)}, this.checked)' />
+      <div class="snapshot-main">
+        <div class="task-text">${esc(item.text)}</div>
+        <div class="meta">
+          <span class="badge ${item.priority}">${labelFor(item.priority)}</span>
+          <span class="badge ${item.done ? "green" : item.loaded ? "blue" : "yellow"}">${item.done ? "Done" : item.loaded ? "Loaded" : "Not loaded"}</span>
+          ${item.reminderHour !== undefined ? `<span>${String(item.reminderHour).padStart(2, "0")}:${String(item.reminderMinute || 0).padStart(2, "0")} reminder</span>` : ""}
+        </div>
+      </div>
+    </label>
+  `).join("") || '<div class="empty">No tasks found.</div>';
+}
+
+function selectAllSnapshotTasks() {
+  ["daily", "weekly"].forEach((category) => {
+    getSnapshotTasks(category).forEach((task) => {
+      state.snapshotSelections[snapshotSelectionKey(category, task.text)] = true;
+    });
+  });
+  save();
+  renderDueToday();
+}
+
+function clearSnapshotSelections() {
+  state.snapshotSelections = {};
+  save();
+  renderDueToday();
+}
+
+function toggleSnapshotCategory(category, checked) {
+  getSnapshotTasks(category).forEach((task) => {
+    state.snapshotSelections[snapshotSelectionKey(category, task.text)] = checked;
+  });
+  save();
+  renderDueToday();
+}
+
+function loadCheckedSnapshotTasks() {
+  let count = 0;
+  getSnapshotStatus("daily").filter((item) => item.checked && !item.done).forEach((task) => {
+    if (!taskExists(task.text)) {
+      addTask(false, { ...withSelectedShift(task), sourceCategory: "daily" });
+      count++;
+    }
+  });
+  getSnapshotStatus("weekly").filter((item) => item.checked && !item.done).forEach((task) => {
+    if (!taskExists(task.text)) {
+      addTask(false, { ...withSelectedShift(task), sourceCategory: "weekly" });
+      count++;
+    }
+  });
+  render();
+  toast(count ? `${count} checked tasks loaded.` : "No new checked tasks to load.");
+}
+
+function renderDueToday() {
+  const items = [...getSnapshotStatus("daily"), ...getSnapshotStatus("weekly")];
+  const remainingCount = items.filter((item) => !item.done).length;
+  document.getElementById("todayBadge").textContent = getCurrentWeekday();
+  document.getElementById("monthBadge").textContent = daysLeftInMonth() + " days left this month";
+  document.getElementById("statDueToday").textContent = remainingCount;
+  document.getElementById("statMonthLeft").textContent = daysLeftInMonth();
+  renderSnapshotList("snapshotDailyList", "daily");
+  renderSnapshotList("snapshotWeeklyList", "weekly");
+}
+
+function renderDailyButtons() {
+  document.getElementById("dailyButtons").innerHTML = `
+    <button class="btn primary" onclick="loadDailySet()">Load Daily + Weekly Tasks</button>
+    ${DAILY_TASKS.map((task) => `<button class="chip" onclick='addTask(false, ${JSON.stringify(withSelectedShift(task)).replace(/'/g, "&#39;")})'>${esc(task.text)}</button>`).join("")}
+  `;
+}
+
+function renderWeekly() {
+  document.getElementById("weeklyDayButtons").innerHTML = WEEKDAYS.map((day) => `
+    <button class="chip ${state.selectedWeekday === day ? "active" : ""}" onclick="selectWeekday('${day}')">${day}</button>
+  `).join("");
+  const tasks = WEEKLY_TASKS[state.selectedWeekday] || [];
+  document.getElementById("weeklyList").innerHTML = tasks.map((task) => `
+    <div class="task ${task.priority}">
+      <div class="task-main">
+        <div class="task-text">${esc(task.text)}</div>
+        <div class="meta">
+          <span class="badge ${task.priority}">${labelFor(task.priority)}</span>
+          ${task.reminderHour !== undefined ? `<span>${String(task.reminderHour).padStart(2, "0")}:${String(task.reminderMinute || 0).padStart(2, "0")} reminder</span>` : ""}
+        </div>
+      </div>
+    </div>`).join("") || '<div class="empty">No tasks for this day.</div>';
+}
+
+function selectWeekday(day) {
+  state.selectedWeekday = day;
+  save();
+  renderWeekly();
+}
+
+function renderMonthly() {
+  ensureMonthlyCycle();
+  const openTasks = MONTHLY_TASKS.filter((task) => !isMonthlyCompleted(task.text));
+  const doneCount = MONTHLY_TASKS.length - openTasks.length;
+  document.getElementById("monthlyOpenBadge").textContent = `${openTasks.length} open`;
+  document.getElementById("monthlyDoneBadge").textContent = `${doneCount} done`;
+  const markup = openTasks.map((task) => `
+    <div class="task ${task.priority}">
+      <div class="task-main">
+        <div class="task-text">${esc(task.text)}</div>
+        <div class="meta"><span class="badge ${task.priority}">${labelFor(task.priority)}</span></div>
+        <div class="task-actions">
+          <button class="btn mini" onclick='addTask(false, ${JSON.stringify({ ...withSelectedShift(task), sourceCategory: "monthly", monthlyTask: true }).replace(/'/g, "&#39;")})'>Add to Board</button>
+          <button class="btn mini" onclick="markMonthlyTaskDone('${task.text.replace(/'/g, "\\'")}')">Mark Done</button>
+        </div>
+      </div>
+    </div>
+  `).join("") || '<div class="empty">All monthly tasks are done for this month.</div>';
+  document.getElementById("monthlyList").innerHTML = markup;
+  document.getElementById("monthlyProgressList").innerHTML = markup;
+}
+
+function renderStats() {
+  document.getElementById("statOpen").textContent = state.tasks.filter((task) => !task.done).length;
+}
+
+function renderShiftBoard() {
+  const root = document.getElementById("shiftBoard");
+  root.innerHTML = SHIFTS.map((shift) => {
+    const tasks = state.tasks.filter((task) => task.shift === shift);
+    const body = tasks.length ? tasks.map((task) => `
+      <div class="task ${task.priority} ${task.done ? "done" : ""}">
+        <div class="task-top">
+          <div class="check" onclick="toggleTask('${task.id}')">${task.done ? "&#10003;" : ""}</div>
+          <div class="task-main">
+            <div class="task-text">${esc(task.text)}</div>
+            <div class="meta">
+              <span class="badge ${task.priority}">${labelFor(task.priority)}</span>
+              ${task.owner ? `<span>${esc(task.owner)}</span>` : ""}
+              <span>${esc(task.shift)}</span>
+              ${task.carriedOver ? `<span class="badge blue">Carryover</span>` : ""}
+              ${task.autoDeleteWhenDone ? `<span class="badge yellow">One-time</span>` : ""}
+              <span>${new Date(task.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
+            </div>
+            ${task.note ? `<div class="note">${esc(task.note)}</div>` : ""}
+            <div class="task-actions">
+              <select class="mini-select" onchange="moveTaskToShift('${task.id}', this.value)">
+                ${SHIFTS.map((option) => `<option value="${option}" ${task.shift === option ? "selected" : ""}>${option}</option>`).join("")}
+              </select>
+              <button class="btn mini" onclick="deleteTask('${task.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join("") : '<div class="empty">No tasks here yet.</div>';
+    return `<div class="task"><div class="task-text">${shift}</div><div class="meta"><span>${tasks.filter((task) => !task.done).length} open</span></div><div style="margin-top:10px">${body}</div></div>`;
+  }).join("");
+}
+
+function renderReminders() {
+  const root = document.getElementById("remindersList");
+  if (!state.reminders.length) {
+    root.innerHTML = '<div class="empty">No reminders yet.</div>';
+    return;
+  }
+  root.innerHTML = state.reminders.map((reminder) => `
+    <div class="task">
+      <div class="task-main">
+        <div class="task-text">${esc(reminder.title)}</div>
+        <div class="meta"><span class="badge blue">${fmtShort(reminder.dateTime)}</span><span class="badge ${reminder.done ? "green" : "yellow"}">${reminder.done ? "Done" : "Active"}</span></div>
+        ${reminder.note ? `<div class="note">${esc(reminder.note)}</div>` : ""}
+        <div class="task-actions"><button class="btn mini" onclick="toggleReminder('${reminder.id}')">${reminder.done ? "Mark active" : "Mark done"}</button><button class="btn mini" onclick="downloadReminderCalendar('${reminder.id}')">Calendar</button><button class="btn mini" onclick="deleteReminder('${reminder.id}')">Delete</button></div>
+      </div>
+    </div>`).join("");
+}
+
+function clearContactForm() {
+  state.editingContactId = null;
+  ["contactName", "contactNumber", "contactGroup", "contactExtra"].forEach((id) => {
+    document.getElementById(id).value = "";
+  });
+}
+
+function saveContact() {
+  const name = document.getElementById("contactName").value.trim();
+  const number = document.getElementById("contactNumber").value.trim();
+  const group = document.getElementById("contactGroup").value.trim();
+  const extra = document.getElementById("contactExtra").value.trim();
+  if (!name || !number) {
+    toast("Add contact name and number.");
+    return;
+  }
+  if (state.editingContactId) {
+    const contact = state.contacts.find((entry) => entry.id === state.editingContactId);
+    if (contact) {
+      contact.name = name;
+      contact.number = number;
+      contact.group = group;
+      contact.extra = extra;
+    }
+    toast("Contact updated.");
+  } else {
+    state.contacts.unshift({ id: uid(), name, number, group, extra });
+    toast("Contact added.");
+  }
+  save();
+  clearContactForm();
+  renderContacts();
+}
+
+function editContact(id) {
+  const contact = state.contacts.find((entry) => entry.id === id);
+  if (!contact) return;
+  state.editingContactId = id;
+  document.getElementById("contactName").value = contact.name || "";
+  document.getElementById("contactNumber").value = contact.number || "";
+  document.getElementById("contactGroup").value = contact.group || "";
+  document.getElementById("contactExtra").value = contact.extra || "";
+  setTab("contacts");
+  scrollToSection("contactEditor");
+  document.getElementById("contactName").focus();
+}
+
+function deleteContact(id) {
+  state.contacts = state.contacts.filter((contact) => contact.id !== id);
+  save();
+  renderContacts();
+  toast("Contact deleted.");
+}
+
+function restoreDefaultContacts() {
+  if (!confirm("Restore the original contact list? This will replace the current contacts list.")) return;
+  state.contacts = JSON.parse(JSON.stringify(DEFAULT_CONTACTS));
+  state.editingContactId = null;
+  save();
+  clearContactForm();
+  renderContacts();
+  toast("Default contacts restored.");
+}
+
+function renderContacts() {
+  const q = (document.getElementById("contactSearch")?.value || "").toLowerCase().trim();
+  const root = document.getElementById("contactsList");
+  document.getElementById("contactCountBadge").textContent = `${state.contacts.length} contacts`;
+  const filtered = state.contacts
+    .filter((contact) => !q || [contact.name, contact.number, contact.group, contact.extra].join(" ").toLowerCase().includes(q))
+    .sort((a, b) => (a.group || "").localeCompare(b.group || "") || (a.name || "").localeCompare(b.name || ""));
+  if (!filtered.length) {
+    root.innerHTML = '<div class="empty">No contacts found.</div>';
+    return;
+  }
+  root.innerHTML = filtered.map((contact) => `
+    <div class="contact-card">
+      <div class="contact-name">${esc(contact.name)}</div>
+      <div class="contact-meta">${esc(contact.group || "No group")}</div>
+      <div class="contact-line"><a href="tel:${esc(normalizePhone(contact.number))}" style="color:var(--blue);font-weight:800;text-decoration:none">${esc(contact.number)}</a>${contact.extra ? ` <span class="muted">- ${esc(contact.extra)}</span>` : ""}</div>
+      <div class="contact-actions">
+        <button class="btn mini" onclick="editContact('${contact.id}')">Edit</button>
+        <button class="btn mini" onclick="deleteContact('${contact.id}')">Delete</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function checkReminders() {
+  const now = Date.now();
+  let hit = false;
+  state.reminders.forEach((reminder) => {
+    if (reminder.done || reminder.notified || !reminder.dateTime) return;
+    const due = new Date(reminder.dateTime).getTime();
+    if (!Number.isNaN(due) && now >= due) {
+      reminder.notified = true;
+      hit = true;
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("ER Reminder", { body: reminder.title });
+      }
+    }
+  });
+  if (hit) {
+    save();
+    renderReminders();
+  }
+}
+
+function render() {
+  ensureMonthlyCycle();
+  updateClock();
+  renderStats();
+  renderPriorityPreview();
+  renderDueToday();
+  renderDailyButtons();
+  renderWeekly();
+  renderMonthly();
+  renderCarryover();
+  renderShiftBoard();
+  renderReminders();
+  renderContacts();
+  renderStickyNotes();
+  renderReport();
+  renderHistory();
+  setTab(state.currentTab || "daily");
+}
+
+function populateReminderTimes() {
+  const select = document.getElementById("reminderTime");
+  if (!select || select.options.length) return;
+  const times = [];
+  for (let hour = 0; hour < 24; hour += 1) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const value = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      times.push(`<option value="${value}">${value}</option>`);
+    }
+  }
+  select.innerHTML = times.join("");
+  select.value = "08:00";
+}
+
+document.getElementById("stickyTitle").addEventListener("input", syncActiveStickyNote);
+document.getElementById("stickyBody").addEventListener("input", syncActiveStickyNote);
+
+setInterval(updateClock, 1000);
+setInterval(checkReminders, 30000);
+
+populateReminderTimes();
+maybeAutoCarryover();
+render();
+</script>
+</body>
+</html>
