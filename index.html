@@ -785,6 +785,16 @@ function exportHistory(id) {
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
+function deleteHistory(id) {
+  const item = state.history.find((entry) => entry.id === id);
+  if (!item) return;
+  if (!confirm(`Delete archived day for ${fmtDate(item.date)}?`)) return;
+  state.history = state.history.filter((entry) => entry.id !== id);
+  save();
+  renderHistory();
+  toast("Archived day deleted.");
+}
+
 function renderHistory() {
   const root = document.getElementById("historyList");
   if (!state.history.length) {
@@ -794,7 +804,7 @@ function renderHistory() {
   root.innerHTML = state.history.slice(0, 10).map((entry) => {
     const open = entry.tasks.filter((task) => !task.done).length;
     const done = entry.tasks.filter((task) => task.done).length;
-    return `<div class="task"><div class="task-main"><div class="task-text">${fmtDate(entry.date)}</div><div class="meta"><span>${open} open</span><span>${done} completed</span><span>${(entry.reminders || []).length} reminders</span></div><div class="task-actions"><button class="btn mini" onclick="loadHistory('${entry.id}')">Load day</button><button class="btn mini" onclick="exportHistory('${entry.id}')">Download report</button></div></div></div>`;
+    return `<div class="task"><div class="task-main"><div class="task-text">${fmtDate(entry.date)}</div><div class="meta"><span>${open} open</span><span>${done} completed</span><span>${(entry.reminders || []).length} reminders</span></div><div class="task-actions"><button class="btn mini" onclick="loadHistory('${entry.id}')">Load day</button><button class="btn mini" onclick="exportHistory('${entry.id}')">Download report</button><button class="btn mini" onclick="deleteHistory('${entry.id}')">Delete</button></div></div></div>`;
   }).join("");
 }
 
