@@ -132,7 +132,10 @@
     <div class="stat panel"><div class="label">Open</div><div class="value blue" id="statOpen">0</div></div>
     <div class="stat panel"><div class="label">Due Today</div><div class="value yellow" id="statDueToday">0</div></div>
     <div class="stat panel"><div class="label">Month Ends In</div><div class="value green" id="statMonthLeft">0 days</div></div>
-    <div class="stat panel"><div class="label">Carryover Flag</div><div class="value red" id="statCarryoverFlag">Clear</div></div>
+    <button class="stat panel" type="button" onclick="scrollToSection('carryoverPanel')" style="text-align:left;cursor:pointer">
+      <div class="label">Carryover Flag</div>
+      <div class="value red" id="statCarryoverFlag">Clear</div>
+    </button>
   </div>
 
   <div class="panel">
@@ -268,7 +271,7 @@
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel" id="carryoverPanel">
     <div class="section-title">Carryover Tasks</div>
     <div id="carryoverList"></div>
   </div>
