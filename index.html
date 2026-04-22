@@ -36,7 +36,7 @@
   .section-title{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700}
   .grid2,.grid3{display:grid;gap:10px}
   .grid2{grid-template-columns:1fr 1fr}
-  .grid3{grid-template-columns:1fr 1fr 1fr}
+  .grid3{grid-template-columns:repeat(4,1fr)}
   .stat{padding:12px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid var(--border)}
   .stat .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .stat .value{font-size:28px;font-weight:900;margin-top:4px}
@@ -131,7 +131,8 @@
   <div class="grid3">
     <div class="stat panel"><div class="label">Open</div><div class="value blue" id="statOpen">0</div></div>
     <div class="stat panel"><div class="label">Due Today</div><div class="value yellow" id="statDueToday">0</div></div>
-    <div class="stat panel"><div class="label">Month Ends In</div><div class="value green" id="statMonthLeft">0</div></div>
+    <div class="stat panel"><div class="label">Month Ends In</div><div class="value green" id="statMonthLeft">0 days</div></div>
+    <div class="stat panel"><div class="label">Carryover Flag</div><div class="value red" id="statCarryoverFlag">Clear</div></div>
   </div>
 
   <div class="panel">
@@ -1216,7 +1217,7 @@ function renderDueToday() {
   document.getElementById("todayBadge").textContent = getCurrentWeekday();
   document.getElementById("monthBadge").textContent = daysLeftInMonth() + " days left this month";
   document.getElementById("statDueToday").textContent = remainingCount;
-  document.getElementById("statMonthLeft").textContent = daysLeftInMonth();
+  document.getElementById("statMonthLeft").textContent = `${daysLeftInMonth()} days`;
   renderSnapshotList("snapshotDailyList", "daily");
   renderSnapshotList("snapshotWeeklyList", "weekly");
 }
@@ -1275,6 +1276,10 @@ function renderMonthly() {
 
 function renderStats() {
   document.getElementById("statOpen").textContent = state.tasks.filter((task) => !task.done).length;
+  const carryoverOpen = state.tasks.filter((task) => task.carriedOver && !task.done).length;
+  const carryoverEl = document.getElementById("statCarryoverFlag");
+  carryoverEl.textContent = carryoverOpen ? `FLAG ${carryoverOpen}` : "Clear";
+  carryoverEl.className = `value ${carryoverOpen ? "red" : "green"}`;
 }
 
 function renderShiftBoard() {
