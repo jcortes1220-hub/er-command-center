@@ -799,14 +799,14 @@ function scrollToSection(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function setTab(tab) {
+function setTab(tab, shouldScroll = true) {
   state.currentTab = tab;
   save();
   ["daily", "weekly", "monthly", "contacts"].forEach((id) => {
     document.getElementById("tab-" + id).classList.toggle("hidden", id !== tab);
     document.getElementById("tabBtn-" + id).classList.toggle("active-tab", id === tab);
   });
-  scrollToSection("tab-" + tab);
+  if (shouldScroll) scrollToSection("tab-" + tab);
 }
 
 function setPriority(priority) {
@@ -1450,7 +1450,7 @@ function render() {
   renderStickyNotes();
   renderReport();
   renderHistory();
-  setTab(state.currentTab || "daily");
+  setTab(state.currentTab || "daily", false);
 }
 
 function populateReminderTimes() {
