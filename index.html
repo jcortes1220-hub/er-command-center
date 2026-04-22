@@ -1279,8 +1279,15 @@ function renderStats() {
 
 function renderShiftBoard() {
   const root = document.getElementById("shiftBoard");
+  const priorityRank = { red: 0, yellow: 1, green: 2 };
   root.innerHTML = SHIFTS.map((shift) => {
-    const tasks = state.tasks.filter((task) => task.shift === shift);
+    const tasks = state.tasks
+      .filter((task) => task.shift === shift)
+      .sort((a, b) => {
+        const priorityDiff = (priorityRank[a.priority] ?? 99) - (priorityRank[b.priority] ?? 99);
+        if (priorityDiff !== 0) return priorityDiff;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
     const body = tasks.length ? tasks.map((task) => `
       <div class="task ${task.priority} ${task.done ? "done" : ""}">
         <div class="task-top">
