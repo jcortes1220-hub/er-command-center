@@ -90,6 +90,13 @@
   .sticky-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
   .sticky-tab{width:auto;padding:10px 12px}
   .sticky-card.active{outline:2px solid var(--yellow)}
+  .box-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .box-card{border:1px solid var(--border);background:#071121;border-radius:16px;padding:12px}
+  .workflow-list{margin-top:10px}
+  .workflow-section-title{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px;font-weight:800}
+  .workflow-line{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .workflow-line:last-child{border-bottom:0}
+  .workflow-line input[type="checkbox"]{width:18px;height:18px;margin:3px 0 0}
   .carryover-box{border:1px dashed rgba(94,166,255,.32);background:rgba(94,166,255,.06);border-radius:16px;padding:12px;margin-bottom:10px}
   .print-only{display:none}
   @media print{
@@ -256,6 +263,17 @@
     <input id="stickyTitle" placeholder="Sticky note title" />
     <textarea id="stickyBody" placeholder="Shift notes, callbacks, staffing, lab follow-up, complaints, handoff notes..."></textarea>
     <div class="sticky-grid" id="stickyPreviewGrid"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">Workflow Boxes</div>
+    <input id="workflowBoxTitle" placeholder="Box title" />
+    <textarea id="workflowBoxBody" placeholder="Workflow, reference, or checklist details..."></textarea>
+    <div class="row-actions">
+      <button class="btn primary" onclick="saveWorkflowBox()">Save Box</button>
+      <button class="btn" onclick="clearWorkflowBoxForm()">Clear</button>
+    </div>
+    <div class="box-grid" id="workflowBoxesList"></div>
   </div>
 
   <div class="panel">
@@ -480,6 +498,7 @@ function currentMonthKey() {
 
 function defaultState() {
   const firstStickyNoteId = uid();
+  const firstWorkflowBoxId = uid();
   return {
     currentBoardDate: todayKey(),
     currentTab: "daily",
@@ -491,6 +510,62 @@ function defaultState() {
     editingContactId: null,
     stickyNotes: [{ id: firstStickyNoteId, title: "Shift Note 1", body: "" }],
     activeStickyNoteId: firstStickyNoteId,
+    workflowBoxes: [{ id: firstWorkflowBoxId, title: "ER Manager Workflow JC", body: `ER Command Center - Manager Workflow (Clean Version)
+
+Daily Structure
+1. 9:00 AM - Huddle (except Wednesday)
+2. 2:00 PM - Daily Sync
+
+Wednesday Schedule
+1. 9:00 AM - PEX Review
+2. 11:00 AM - MOR
+3. 1:00 PM - Joe Touchpoints
+4. 2:00 PM - Sync
+
+Daily Tasks
+1. Close Orbit Issues (review and execute)
+2. Falls Audit by 0800 (ensure completion)
+3. EDMV (follow-up pending items)
+4. EMTALA checks - review daily for gaps
+5. EMS Review - verify MOA accuracy in EMTALA
+6. UKG Edits - complete staffing/timecard corrections
+7. Patient Rounds - ensure engagement
+8. IV Start/Stop - monitor compliance
+9. Pain Reassessment - ensure completion
+10. Medication Scanning compliance
+11. Wound documentation compliance
+
+Monitoring & Metrics
+1. DM Variances - Pyxis review
+2. Press Ganey feedback and trends
+3. EM Resource - update ERS board
+4. Pulsara usage review
+5. Productivity target (~1.70 benchmark)
+6. Daily staffing & pay period review
+7. Variance in productive hours
+
+Weekly Tasks
+1. Day of Sweep - EVS coordination
+2. TJC Audit - EOC compliance
+3. NLR - rounding & follow-ups
+4. Patient Diet review
+5. Safety / NLR / Patient rounds tracking
+6. Recognition - assign points (manager access)
+7. Send JOE update by 2 PM
+8. Bring mail on Wednesday
+
+Reports & Deadlines
+1. Review AWA (ensure accuracy)
+2. Track ETO / Enterprise ER reports
+3. CNBS - maintain updates
+4. Deadline: Monday before 12 PM
+
+Operations / Improvements
+1. Create resource drawer for flyers instead of binder
+2. Organize by provider using hanging folders
+3. Ensure paperwork reviewed and signed by charge nurse`, createdAt: new Date().toISOString() }],
+    editingWorkflowBoxId: null,
+    workflowSelections: {},
     snapshotSelections: {},
     monthlyCycle: currentMonthKey(),
     monthlyCompleted: [],
@@ -531,6 +606,66 @@ function loadState() {
     if (!Array.isArray(merged.stickyNotes) || !merged.stickyNotes.length) {
       merged.stickyNotes = [{ id: uid(), title: "Shift Note 1", body: parsed.quickNotes || "" }];
     }
+    if (!Array.isArray(merged.workflowBoxes) || !merged.workflowBoxes.length) {
+      merged.workflowBoxes = [{ id: uid(), title: "ER Manager Workflow JC", body: `ER Command Center - Manager Workflow (Clean Version)
+
+Daily Structure
+1. 9:00 AM - Huddle (except Wednesday)
+2. 2:00 PM - Daily Sync
+
+Wednesday Schedule
+1. 9:00 AM - PEX Review
+2. 11:00 AM - MOR
+3. 1:00 PM - Joe Touchpoints
+4. 2:00 PM - Sync
+
+Daily Tasks
+1. Close Orbit Issues (review and execute)
+2. Falls Audit by 0800 (ensure completion)
+3. EDMV (follow-up pending items)
+4. EMTALA checks - review daily for gaps
+5. EMS Review - verify MOA accuracy in EMTALA
+6. UKG Edits - complete staffing/timecard corrections
+7. Patient Rounds - ensure engagement
+8. IV Start/Stop - monitor compliance
+9. Pain Reassessment - ensure completion
+10. Medication Scanning compliance
+11. Wound documentation compliance
+
+Monitoring & Metrics
+1. DM Variances - Pyxis review
+2. Press Ganey feedback and trends
+3. EM Resource - update ERS board
+4. Pulsara usage review
+5. Productivity target (~1.70 benchmark)
+6. Daily staffing & pay period review
+7. Variance in productive hours
+
+Weekly Tasks
+1. Day of Sweep - EVS coordination
+2. TJC Audit - EOC compliance
+3. NLR - rounding & follow-ups
+4. Patient Diet review
+5. Safety / NLR / Patient rounds tracking
+6. Recognition - assign points (manager access)
+7. Send JOE update by 2 PM
+8. Bring mail on Wednesday
+
+Reports & Deadlines
+1. Review AWA (ensure accuracy)
+2. Track ETO / Enterprise ER reports
+3. CNBS - maintain updates
+4. Deadline: Monday before 12 PM
+
+Operations / Improvements
+1. Create resource drawer for flyers instead of binder
+2. Organize by provider using hanging folders
+3. Ensure paperwork reviewed and signed by charge nurse`, createdAt: new Date().toISOString() }];
+    }
+    if (merged.editingWorkflowBoxId && !merged.workflowBoxes.some((box) => box.id === merged.editingWorkflowBoxId)) {
+      merged.editingWorkflowBoxId = null;
+    }
+    if (!merged.workflowSelections || typeof merged.workflowSelections !== "object") merged.workflowSelections = {};
     if (!merged.activeStickyNoteId || !merged.stickyNotes.some((note) => note.id === merged.activeStickyNoteId)) {
       merged.activeStickyNoteId = merged.stickyNotes[0].id;
     }
@@ -848,7 +983,7 @@ function addTask(withReminder = false, preset = null) {
     shift: preset?.shift || getSelectedShift(),
     priority: preset?.priority || state.selectedPriority,
     owner: preset?.owner || document.getElementById("taskOwner").value.trim(),
-    note: document.getElementById("taskNote").value.trim(),
+    note: preset?.note ?? document.getElementById("taskNote").value.trim(),
     autoDeleteWhenDone: preset?.autoDeleteWhenDone ?? (document.getElementById("taskPersistence")?.value === "delete"),
     sourceCategory: preset?.sourceCategory || "manual",
     monthlyTask: !!preset?.monthlyTask,
@@ -1108,6 +1243,155 @@ function syncActiveStickyNote() {
   active.body = document.getElementById("stickyBody").value;
   save();
   renderReport();
+}
+
+function clearWorkflowBoxForm() {
+  state.editingWorkflowBoxId = null;
+  document.getElementById("workflowBoxTitle").value = "";
+  document.getElementById("workflowBoxBody").value = "";
+}
+
+function saveWorkflowBox() {
+  const title = document.getElementById("workflowBoxTitle").value.trim();
+  const body = document.getElementById("workflowBoxBody").value.trim();
+  if (!title) {
+    toast("Add a box title first.");
+    return;
+  }
+  if (state.editingWorkflowBoxId) {
+    const box = state.workflowBoxes.find((entry) => entry.id === state.editingWorkflowBoxId);
+    if (box) {
+      box.title = title;
+      box.body = body;
+    }
+    toast("Workflow box updated.");
+  } else {
+    state.workflowBoxes.unshift({ id: uid(), title, body, createdAt: new Date().toISOString() });
+    toast("Workflow box added.");
+  }
+  save();
+  clearWorkflowBoxForm();
+  renderWorkflowBoxes();
+}
+
+function editWorkflowBox(id) {
+  const box = state.workflowBoxes.find((entry) => entry.id === id);
+  if (!box) return;
+  state.editingWorkflowBoxId = id;
+  document.getElementById("workflowBoxTitle").value = box.title || "";
+  document.getElementById("workflowBoxBody").value = box.body || "";
+  scrollToSection("workflowBoxesList");
+  document.getElementById("workflowBoxTitle").focus();
+}
+
+function deleteWorkflowBox(id) {
+  const box = state.workflowBoxes.find((entry) => entry.id === id);
+  if (!box) return;
+  if (!confirm(`Delete workflow box: ${box.title}?`)) return;
+  state.workflowBoxes = state.workflowBoxes.filter((entry) => entry.id !== id);
+  if (state.editingWorkflowBoxId === id) clearWorkflowBoxForm();
+  save();
+  renderWorkflowBoxes();
+  toast("Workflow box deleted.");
+}
+
+function parseWorkflowItems(body) {
+  const lines = String(body || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  let section = "Workflow";
+  const items = [];
+  lines.forEach((line) => {
+    const numbered = line.match(/^\d+\.\s+(.+)$/);
+    if (numbered) {
+      items.push({ section, text: numbered[1] });
+    } else if (!line.includes("Command Center - Manager Workflow")) {
+      section = line;
+    }
+  });
+  return items;
+}
+
+function workflowSelectionKey(boxId, itemText) {
+  return `${boxId}::${itemText}`;
+}
+
+function isWorkflowItemSelected(boxId, itemText) {
+  return !!state.workflowSelections[workflowSelectionKey(boxId, itemText)];
+}
+
+function setWorkflowItemSelection(boxId, itemText, checked) {
+  state.workflowSelections[workflowSelectionKey(boxId, itemText)] = checked;
+  save();
+}
+
+function selectAllWorkflowItems(boxId) {
+  const box = state.workflowBoxes.find((entry) => entry.id === boxId);
+  if (!box) return;
+  parseWorkflowItems(box.body).forEach((item) => {
+    state.workflowSelections[workflowSelectionKey(boxId, item.text)] = true;
+  });
+  save();
+  renderWorkflowBoxes();
+}
+
+function clearWorkflowSelections(boxId) {
+  Object.keys(state.workflowSelections).forEach((key) => {
+    if (key.startsWith(`${boxId}::`)) delete state.workflowSelections[key];
+  });
+  save();
+  renderWorkflowBoxes();
+}
+
+function addSelectedWorkflowItems(boxId) {
+  const box = state.workflowBoxes.find((entry) => entry.id === boxId);
+  if (!box) return;
+  let count = 0;
+  parseWorkflowItems(box.body).forEach((item) => {
+    if (isWorkflowItemSelected(boxId, item.text) && !taskExists(item.text)) {
+      addTask(false, {
+        text: item.text,
+        shift: getSelectedShift(),
+        priority: "yellow",
+        owner: "You",
+        note: `${box.title} - ${item.section}`,
+        sourceCategory: "workflow"
+      });
+      count++;
+    }
+  });
+  toast(count ? `${count} workflow items added to Shift Board.` : "No new selected workflow items to add.");
+}
+
+function renderWorkflowChecklist(box) {
+  const items = parseWorkflowItems(box.body);
+  if (!items.length) return '<div class="empty">No checklist items found in this box.</div>';
+  let currentSection = "";
+  return items.map((item) => {
+    const sectionLabel = item.section !== currentSection ? `<div class="workflow-section-title">${esc(item.section)}</div>` : "";
+    currentSection = item.section;
+    return `${sectionLabel}<label class="workflow-line"><input type="checkbox" ${isWorkflowItemSelected(box.id, item.text) ? "checked" : ""} onchange='setWorkflowItemSelection(${JSON.stringify(box.id)}, ${JSON.stringify(item.text)}, this.checked)' /><div class="task-main"><div>${esc(item.text)}</div></div></label>`;
+  }).join("");
+}
+
+function renderWorkflowBoxes() {
+  const root = document.getElementById("workflowBoxesList");
+  if (!state.workflowBoxes.length) {
+    root.innerHTML = '<div class="empty">No workflow boxes yet.</div>';
+    return;
+  }
+  root.innerHTML = state.workflowBoxes.map((box) => `
+    <div class="box-card">
+      <div class="task-text">${esc(box.title)}</div>
+      <div class="note">${esc(box.body || "No details added yet.")}</div>
+      <div class="task-actions">
+        <button class="btn mini" onclick="selectAllWorkflowItems('${box.id}')">Select All</button>
+        <button class="btn mini" onclick="clearWorkflowSelections('${box.id}')">Clear</button>
+        <button class="btn mini" onclick="addSelectedWorkflowItems('${box.id}')">Add Selected</button>
+        <button class="btn mini" onclick="editWorkflowBox('${box.id}')">Edit</button>
+        <button class="btn mini" onclick="deleteWorkflowBox('${box.id}')">Delete</button>
+      </div>
+      <div class="workflow-list">${renderWorkflowChecklist(box)}</div>
+    </div>
+  `).join("");
 }
 
 function markMonthlyTaskDone(text) {
@@ -1473,6 +1757,7 @@ function render() {
   renderReminders();
   renderContacts();
   renderStickyNotes();
+  renderWorkflowBoxes();
   renderReport();
   renderHistory();
   setTab(state.currentTab || "daily", false);
